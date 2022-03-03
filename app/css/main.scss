@@ -36,3 +36,14 @@ body {
     padding: 0;
   }
 }
+
+.scale-container {
+  margin: .5em 0 .5em .2em;
+  display: flex;
+}
+.scale-btn {
+  margin-left: .4em;
+}
+.scale-input {
+  width: 18em;
+}
