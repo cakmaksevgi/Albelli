@@ -10,7 +10,8 @@ const AppView = () => {
         </form>
 
         <div class="scale-container">
-            <input id="scaleVal" class="scale-input" onchange=onChangeScaleValue(this.value) type="number" placeholder="Please enter your photo(s) scale.. " />
+            <input id="scaleVal" class="scale-input" onchange=onChangeScaleValue(this.value) type="number"
+                 placeholder="Please enter your photo(s) scale.. " max="100"/>
             <button id="scaleBtn" class="scale-btn" onclick="scalePhoto()" disabled>Scale Photo</button>
         </div>
 
@@ -33,10 +34,18 @@ const AppView = () => {
             return;
         }
 
+        const scale = parseInt(window.scaleValue);
+        if(scale > 100) {
+            alert("Scale value cannot be greater than 100.");
+            window.scaleValue = 100;
+            document.getElementById("scaleVal").value = 100;
+            return;
+        }
+
+        const scalePercentage = scale / 100;
         const ctx = editorCanvas.getContext('2d');
-        const value = parseInt(window.scaleValue) / 100;
-        const newWidth = window.imgObj.naturalWidth * value;
-        const newHeight = window.imgObj.naturalHeight * value;
+        const newWidth = window.imgObj.naturalWidth * scalePercentage;
+        const newHeight = window.imgObj.naturalHeight * scalePercentage;
         editorCanvas.width = newWidth;
         editorCanvas.height = newHeight;
         ctx.drawImage(window.imgObj, 0, 0, newWidth, newHeight);
