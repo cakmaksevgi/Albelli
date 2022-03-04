@@ -1,3 +1,5 @@
+@import 'bootstrap/dist/css/bootstrap.min.css';
+
 body {
   font-family: Helvetica, Verdana, sans-serif;
   line-height: 1.5em;
@@ -47,3 +49,10 @@ body {
 .scale-input {
   width: 18em;
 }
+.right {
+  float: right;
+}
+.left {
+  float: left;
+}
+
