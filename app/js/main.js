@@ -27,9 +27,9 @@ const AppView = () => {
         </form>
 
         <div id="canvas-container" class="d-none">
-            <button title="Move to Left" onclick="moveTo()"></button>
+            <button title="Drag to Left" onclick="dragTo()"></button>
             <canvas id="editorCanvas"></canvas>
-            <button title="Move to Right" onclick="moveTo(true)"></button>
+            <button title="Drag to Right" onclick="dragTo(true)"></button>
         </div>`;
 
     // grab DOM elements inside index.html
@@ -71,10 +71,11 @@ const AppView = () => {
         ctx.drawImage(img, 0, 0, img.naturalWidth, img.naturalHeight,     // source rectangle
             0, 0, editorCanvas.width, editorCanvas.height); // destination rectangle
     }
-    window.moveTo = (right) => {
+    window.dragTo = (right) => {
         const elem = document.getElementById("canvas-container");
-        const floatClassName = right ? "right" : "left";
-        elem.className = `d-flex ${floatClassName}`;
+        let left = right ? elem.offsetLeft + 100 : elem.offsetLeft - 100;
+        left = left < 0 ? 0 : left;
+        elem.style.left = `${left}px`;
     }
     window.onChangeScaleValue = function (val) {
         window.scaleValue = val;
@@ -93,8 +94,6 @@ const AppView = () => {
                 "height": editorCanvas.height,
                 "photo": {
                     "id": window.imgObj.name,
-                    "width": window.imgObj.naturalWidth,
-                    "height": window.imgObj.naturalHeight,
                     "x": window.scrollX + document.querySelector('#editorCanvas').getBoundingClientRect().left, // X,
                     "y": window.scrollY + document.querySelector('#editorCanvas').getBoundingClientRect().top, // Y
                     "src": window.imgObj.src
@@ -130,10 +129,19 @@ const AppView = () => {
         const currentImg = images[key];
         const image = new Image();
         image.src = currentImg.canvas.photo.src;
+        window.imgObj = image;
+        window.imgObj.name = key;
         image.onload = () => {
+            window.fileUploaded = true;
             window.renderImage(image, currentImg.canvas.width, currentImg.canvas.height);
+            window.changeCanvasCoordinates(currentImg.canvas.photo.x, currentImg.canvas.photo.y);
             window.changeCanvasVisible();
         }
+    }
+    window.changeCanvasCoordinates = (left, top) => {
+        const elem = document.getElementById("canvas-container");
+        elem.style.left = `${left}px`;
+        elem.style.top = `${top}px`;
     }
 
     window.getStoredImages = () => {
