@@ -36,14 +36,16 @@ const AppView = () => {
     const fileSelector = document.getElementById("fileSelector");
     const editorCanvas = document.getElementById("editorCanvas");
 
+    // prepare the select box for importing already saved images
     window.addEventListener('DOMContentLoaded', (event) => {
         window.scaleButton = document.getElementById('scaleBtn');
         window.prepareSelectBox();
     });
 
+    // defined for showing an error message for some actions like trying to scale image without importing
     window.fileUploaded = false;
     window.scaleValue = null;
-    window.imgObj = null;
+    window.currentImage = null;
     window.scalePhoto = (e) => {
         e.preventDefault();
         if (!window.fileUploaded) {
@@ -60,10 +62,11 @@ const AppView = () => {
         }
 
         const scalePercentage = scale / 100; // percentage of scale
-        const newWidth = window.imgObj.naturalWidth * scalePercentage;
-        const newHeight = window.imgObj.naturalHeight * scalePercentage;
-        window.renderImage(window.imgObj, newWidth, newHeight);
+        const newWidth = window.currentImage.naturalWidth * scalePercentage;
+        const newHeight = window.currentImage.naturalHeight * scalePercentage;
+        window.renderImage(window.currentImage, newWidth, newHeight);
     }
+    // rendered image considering scale value from the input
     window.renderImage = (img, newWidth, newHeight) => {
         const ctx = editorCanvas.getContext('2d');
         editorCanvas.width = newWidth;
@@ -81,6 +84,7 @@ const AppView = () => {
         window.scaleValue = val;
         scaleButton.disabled = !val;
     }
+    // used localestorage for saving images with their properties
     window.savePhoto = () => {
         if (!window.fileUploaded) {
             alert("Please select an image file..");
@@ -93,15 +97,16 @@ const AppView = () => {
                 "width": editorCanvas.width,
                 "height": editorCanvas.height,
                 "photo": {
-                    "id": window.imgObj.name,
+                    "id": window.currentImage.name,
                     "x": window.scrollX + document.querySelector('#editorCanvas').getBoundingClientRect().left, // X,
                     "y": window.scrollY + document.querySelector('#editorCanvas').getBoundingClientRect().top, // Y
-                    "src": window.imgObj.src
+                    "src": window.currentImage.src
                 }
             }
         };
-        storedImages[window.imgObj.name] = data;
+        storedImages[window.currentImage.name] = data;
         window.localStorage.setItem("imgData", JSON.stringify(storedImages));
+        // need to re-render selectbox because we could have a new image
         window.prepareSelectBox();
     }
     window.prepareSelectBox = () => {
@@ -119,6 +124,7 @@ const AppView = () => {
         option.text = optionValue;
         selectContainer.appendChild(option);
     }
+    // Import images from already saved ones on the select box and put them in the canvas considering saved coordinates, positions etc.
     window.onChangeImage = (selectedImg) => {
         const key = selectedImg.value;
         if (key === "Select an image..") {
@@ -129,8 +135,8 @@ const AppView = () => {
         const currentImg = images[key];
         const image = new Image();
         image.src = currentImg.canvas.photo.src;
-        window.imgObj = image;
-        window.imgObj.name = key;
+        window.currentImage = image;
+        window.currentImage.name = key;
         image.onload = () => {
             window.fileUploaded = true;
             window.renderImage(image, currentImg.canvas.width, currentImg.canvas.height);
@@ -180,8 +186,8 @@ const AppView = () => {
                             // grab some data from the image
                             const width = img.naturalWidth;
                             const height = img.naturalHeight;
-                            window.imgObj = img;
-                            window.imgObj.name = file.name;
+                            window.currentImage = img;
+                            window.currentImage.name = file.name;
 
                             editorCanvas.width = 500;
                             editorCanvas.height = 500 * height / width;
